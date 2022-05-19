@@ -42,38 +42,47 @@ def run_for_10_etas():
         print("Creating particle files", end='', flush=True)
         # Currently run until time ends
         while t < T:
+
             print(end='.', flush=True)
             # save coordinates & corresponding thetas to a text file
             output = np.concatenate((particles, thetas), axis=1)
-            np.savetxt("%.2f.txt" % t, output)
+            #np.savetxt("%.2f.txt" % t, output)
+
+
             for i, (x, y) in enumerate(particles):
+
                 # get neighbor indices for current particle
-                neighbors = get_neighbors(particles, r, x, y)[0]
+                neighbors = get_neighbors(particles, r, x, y)
+
                 # get average theta angle
                 avg = get_average(thetas, neighbors)
+
                 # get noise angle
                 n_angle = rand_angle()
+
                 noise = eta * n_angle
+
                 # get new theta
                 thetas[i] = avg + noise
+
                 # move to new position 
                 particles[i,:] += delta_t * angle_2_vector(thetas[i])
+
                 # assure correct boundaries (xmax, ymax) = (1,1)
                 if particles[i, 0] < 0:
                     particles[i, 0] = 1 + particles[i, 0]
+
                 if particles[i, 0] > 1:
                     particles[i, 0] = particles[i, 0] - 1
+
                 if particles[i, 1] < 0:
                     particles[i, 1] = 1 + particles[i, 1]
+
                 if particles[i, 1] > 1:
                     particles[i, 1] = particles[i, 1] - 1
-            # new time step
-                t+= delta_t
 
-            
-            
-            
-            
+             # new time step
+            t += delta_t
         final_out = np.concatenate((particles, thetas), axis=1)
         np.savetxt("%.2f.txt" % eta, final_out)
 
@@ -95,4 +104,11 @@ def run_for_10_etas():
 
     return pol_of_eta
 
+#initialize matrix to store vectors with final polarization for different etas for m simulations
+m=25
+polarization_matrix=np.zeros((m,11))
 
+for l in range(m):
+    polarization_matrix[l]=run_for_10_etas()
+
+print(polarization_matrix)
